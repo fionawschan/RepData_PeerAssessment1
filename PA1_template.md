@@ -7,13 +7,11 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r include = FALSE}
-unzip("activity.zip")
-walkdata <- read.csv("activity.csv")
-```
+
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 totalSteps <- aggregate(steps~date, data=walkdata, sum, na.rm=TRUE)
 hist(totalSteps$steps,
     main="Total Number of Steps Taken per day",
@@ -22,46 +20,64 @@ hist(totalSteps$steps,
     ylim = c(0,40),
     )
 ```
-```{r}
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 meanSteps <- mean(totalSteps$steps)
 medianSteps <- median(totalSteps$steps)
 print(meanSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(medianSteps)
 ```
 
+```
+## [1] 10765
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 stepsToInterval <- aggregate(steps~interval, data=walkdata, mean, na.rm=TRUE)
 plot(steps~interval,data=stepsToInterval,type="l")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+
+```r
 max5minsinterval <- stepsToInterval[which.max(stepsToInterval$steps),]$interval
 print(max5minsinterval)
 ```
 
+```
+## [1] 835
+```
+
 ## Imputing missing values
 #### Calcuate total number of missing values
-```{r}
+
+```r
 totalMissing <- sum(is.na(walkdata$steps))
 print(totalMissing)
 ```
 
-#### Create a new dataset with missing data filled in
-```{r include = FALSE}
-allTimeSlots <- unique(walkdata$interval)
-newdata <- walkdata
-
-setMissingData <- function(timeSlot) {
-  newdata[which(walkdata$interval==timeSlot & is.na(walkdata$steps)), ]$steps <<- 
-    mean(walkdata[which(walkdata$interval==timeSlot & !is.na(walkdata$steps)), ]$steps)
-}
-
-lapply(allTimeSlots, setMissingData)
+```
+## [1] 2304
 ```
 
+#### Create a new dataset with missing data filled in
+
+
 #### Histogram
-```{r}
+
+```r
 totalNewSteps <- aggregate(steps~date, data = newdata, sum, na.rm=TRUE)
 hist(totalNewSteps$steps,
      main="Total Number of Steps Taken each day",
@@ -70,17 +86,32 @@ hist(totalNewSteps$steps,
      ylim=c(0,40))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
 #### Calculate mean and median
-```{r} 
+
+```r
 meanNewSteps <- mean(totalNewSteps$steps)
 medianNewSteps <- median(totalNewSteps$steps)
 print(meanNewSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(medianNewSteps)
+```
+
+```
+## [1] 10766.19
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 #### Create new factor variable with two levels - "weekday" and "weekend"
-```{r}
+
+```r
 newdata$type_of_day <- weekdays(as.Date(newdata$date))
 newdata$type_of_day[newdata$type_of_day %in% c('Saturday','Sunday')] <- "Weekend"
 newdata$type_of_day[newdata$type_of_day !="Weekend"] <- "Weekday"
@@ -94,7 +125,8 @@ Weekend_stepsToInterval <- aggregate(steps~interval, data=Weekend_data, mean)
 ```
 
 #### Panel plot
-```{r}
+
+```r
 par(mfrow=c(2,1), mar=c(4,4,2,1), oma=c(0,0,2,0))
 
 with(newdata, {
@@ -104,3 +136,5 @@ main="Steps for Weekdays", xlab="Time Interval", col="blue")
 main="Steps for Weekends", xlab="Time Interval", col="blue")
     })
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
